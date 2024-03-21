@@ -26,7 +26,8 @@ public:
 
 	void DoHead(const FString& URL);
 
-
+	void DoPost(const FString& URL);
+	void OnPostComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSuccessed);
 
 private:
 	 static MyHttpHelper* Ins;

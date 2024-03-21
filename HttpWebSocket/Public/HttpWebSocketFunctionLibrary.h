@@ -20,5 +20,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static void DoHead(const FString& URL);
+
+	UFUNCTION(BlueprintCallable)
+	static void DoPOST(const FString& URL);
 	
 };

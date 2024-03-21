@@ -15,6 +15,7 @@ MyHttpHelper::MyHttpHelper()
 
 MyHttpHelper::~MyHttpHelper()
 {
+	delete Ins;
 }
 
 MyHttpHelper* MyHttpHelper::GetMyHttpHelper()
@@ -45,7 +46,7 @@ void MyHttpHelper::OnGetComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr H
 
 	if (!HttpRequest.IsValid() || !HttpResponse.IsValid())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("LoadMgr Request or HttpResponse is not valid"));
+		UE_LOG(LogTemp, Warning, TEXT("GET::LoadMgr Request or HttpResponse is not valid"));
 		return;
 	}
 
@@ -53,11 +54,11 @@ void MyHttpHelper::OnGetComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr H
 	{
 		const FString Msg = HttpResponse->GetContentAsString();
 
-		UE_LOG(LogTemp, Warning, TEXT("This is http response: %s"), *Msg);
+		UE_LOG(LogTemp, Warning, TEXT("GET::This is http response: %s"), *Msg);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Read http response failed : %d"), HttpResponse->GetResponseCode());
+		UE_LOG(LogTemp, Warning, TEXT("GET::Read http response failed : %d"), HttpResponse->GetResponseCode());
 	}
 
 	HttpRequest->OnProcessRequestComplete().Unbind();
@@ -75,7 +76,7 @@ void MyHttpHelper::DoHead(const FString& URL)
 		{
 			if (!HttpRequest.IsValid() || !HttpResponse.IsValid())
 			{
-				UE_LOG(LogTemp, Warning, TEXT("LoadMgr Request or HttpResponse is not valid"));
+				UE_LOG(LogTemp, Warning, TEXT("HEAD::LoadMgr Request or HttpResponse is not valid"));
 				return;
 			}
 
@@ -84,15 +85,49 @@ void MyHttpHelper::DoHead(const FString& URL)
 				const FString HeaderLength = HttpResponse->GetHeader(TEXT("Content-Type")); //获取HEAD中Content-Length的内容
 				//const int Length = FCString::Atoi(*HeaderLength);
 
-				UE_LOG(LogTemp, Warning, TEXT("This is http Content-Length : %s"), *HeaderLength);
+				UE_LOG(LogTemp, Warning, TEXT("HEAD::This is http Content-Length : %s"), *HeaderLength);
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Read http response failed : %d"), HttpResponse->GetResponseCode());
+				UE_LOG(LogTemp, Warning, TEXT("HEAD::Read http response failed : %d"), HttpResponse->GetResponseCode());
 			}
 
 			HttpRequest->OnProcessRequestComplete().Unbind();
 		}
 	);
 	HttpRequest->ProcessRequest(); //执行请求
+}
+
+void MyHttpHelper::DoPost(const FString& URL)
+{
+	auto HttpRequest = FHttpModule::Get().CreateRequest();
+
+	HttpRequest->SetURL(URL);
+	HttpRequest->SetVerb(TEXT("POST")); //相对于GET，在调用SetVerb时传入TEXT(“POST”)
+	HttpRequest->SetHeader(TEXT("Content-Type"), TEXT("application/json")); //设置Content-Type为json。意思是标明发送端发送的实体数据的类型为json。
+	HttpRequest->SetHeader(TEXT("Accept"), TEXT("application/json,version=1.0"));//设置Accept指定的json且版本号为1.0
+	HttpRequest->OnProcessRequestComplete().BindRaw(this, &MyHttpHelper::OnPostComplete);
+	HttpRequest->ProcessRequest(); //执行请求
+}
+
+void MyHttpHelper::OnPostComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSuccessed)
+{
+	if (!HttpRequest.IsValid() || !HttpResponse.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("POST::LoadMgr Request or HttpResponse is not valid"));
+		return;
+	}
+
+	if (bSuccessed && EHttpResponseCodes::IsOk(HttpResponse->GetResponseCode()))
+	{
+		const FString Msg = HttpResponse->GetContentAsString();
+
+		UE_LOG(LogTemp, Warning, TEXT("POST::This is http response: %s"), *Msg);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("POST::Read http response failed : %d"), HttpResponse->GetResponseCode());
+	}
+
+	HttpRequest->OnProcessRequestComplete().Unbind();
 }

@@ -13,3 +13,9 @@ void UHttpWebSocketFunctionLibrary::DoHead(const FString& URL)
 {
 	MyHttpHelper::GetMyHttpHelper()->DoHead(URL);
 }
+
+void UHttpWebSocketFunctionLibrary::DoPOST(const FString& URL)
+{
+	MyHttpHelper::GetMyHttpHelper()->DoPost(URL);
+}
+
