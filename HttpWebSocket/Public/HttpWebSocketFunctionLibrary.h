@@ -17,5 +17,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	static void DoGet(const FString& URL);
+
+	UFUNCTION(BlueprintCallable)
+	static void DoHead(const FString& URL);
 	
 };

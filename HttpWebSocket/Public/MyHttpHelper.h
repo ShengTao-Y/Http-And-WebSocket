@@ -22,7 +22,11 @@ public:
 
 public:
 	void DoGet(const FString& URL);
-	void OnLoadComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSuccessed);
+	void OnGetComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSuccessed);
+
+	void DoHead(const FString& URL);
+
+
 
 private:
 	 static MyHttpHelper* Ins;
